@@ -1,8 +1,8 @@
-# BodeConfig
+# Bode Config
 
 This sample demonstrates how to customize the Bode measurement.
 
-If in the current workspace, in the folder TAM\Settings, there is a `BodeConfig.xml` file, this file will be used in favor
+If in the current workspace, in the folder `TAM\Settings`, there is a `BodeConfig.xml` file, this file will be used in favor
 of the inbuilt definition.
 
 You can find your current workspace whith the TAM System Explorer via `File > Open Workspace Folder`.\
