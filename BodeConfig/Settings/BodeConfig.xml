@@ -1,0 +1,558 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!-- 
+    Bode configuration
+
+    Copyright © 2016 Triamec Motion AG 
+-->
+<BodeConfig xmlns="http://schemas.triamec.com/Tam/BodeConfig.xsd">
+
+  <!--**************************************************************-->
+  <!-- open loop bode measurement -->
+  <MeasurementMethod Name="Open Loop Bode">
+    <Stimulus SupplyPoint="Voltage">
+      
+      <!-- Current way to specify a location. Note, however, that tags will be deprecated some day. -->
+      <Location Tag="AxisSignals.CurrentControllerTestSignal"/>
+      
+      <!--
+        Future primary method to specify a location: address relative to the axis register.
+        <Location Uri="Signals/CurrentController/TestSignal"/>
+
+        Alternate method to specify a location: Absolute Uri, even supports specifying different drive
+        <Location Uri="tam://mc/TestDrive/Axes[0]/Signals/CurrentController/TestSignal"/>
+
+      -->
+      <DefaultValue Tag="AxisParameters.CurrentControllerOutputLimit"/>
+    </Stimulus>
+
+    <MeasuringPoint>
+      <Location Tag="AxisSignals.CurrentControllerTestSignal"/>
+    </MeasuringPoint>
+
+    <MeasuringPoint>
+      <Location Tag="AxisSignals.CurrentControllerActualCurrentQ"/>
+    </MeasuringPoint>
+
+    <MeasuringPoint UseDefaultMaximumForIncrementCalculation="true">
+      <Location Tag="AxisSignals.PositionCount" TagIndex="0"/>
+      <Condition Comparison="inequal">
+        <LeftComparand Tag="AxisParameters.EncoderType" TagIndex="0"/>
+        <RightComparand>
+          <Value>0</Value>
+        </RightComparand>
+      </Condition>
+      <Conversion ConverterType="EncoderCounter"/>
+    </MeasuringPoint>
+
+    <MeasuringPoint UseDefaultMaximumForIncrementCalculation="true">
+      <Location Tag="AxisSignals.PositionCount" TagIndex="1"/>
+      <Condition Comparison="inequal">
+        <LeftComparand Tag="AxisParameters.EncoderType" TagIndex="1"/>
+        <RightComparand>
+          <Value>0</Value>
+        </RightComparand>
+      </Condition>
+      <Conversion ConverterType="EncoderCounter"/>
+    </MeasuringPoint>
+
+    <FrequencyResponse Name="system open G=I/U" Color="Magenta" LineWidth="1.6"
+                       NumeratorIndex="1" DenominatorIndex="0" InvertSign="false" />
+    <FrequencyResponse Name="system open G=X/U" Color="Pink" LineWidth="1"
+                       NumeratorIndex="2" DenominatorIndex="0" InvertSign="false" />
+    <FrequencyResponse Name="system open G=X/I" Color="Red" LineWidth="1"
+                       NumeratorIndex="2" DenominatorIndex="1" InvertSign="false" />
+    <FrequencyResponse Name="system open G=Y/U" Color="Pink" LineWidth="1"
+                       NumeratorIndex="3" DenominatorIndex="0" InvertSign="false" />
+    <FrequencyResponse Name="system open G=Y/I" Color="Red" LineWidth="1"
+                       NumeratorIndex="3" DenominatorIndex="1" InvertSign="false" />
+
+    <PreparationRef Id="Move in inordinate system"/>
+    <PreparationRef Id="Disable position controller"/>
+    <Preparation>
+      <Source>
+        <Value>0</Value>
+      </Source>
+      <Target Tag="AxisParameters.CurrentControllerKrQ"/>
+    </Preparation>
+    <Preparation>
+      <Source>
+        <Value>0</Value>
+      </Source>
+      <Target Tag="AxisParameters.CurrentControllerKrD"/>
+    </Preparation>
+    <Preparation>
+      <Source>
+        <Value>false</Value>
+      </Source>
+
+      <!-- Only needed for DSP drives. -->
+      <Target Tag="AxisCommands.CurrentControllerTestSignalAddToInput"/>
+    </Preparation>
+  </MeasurementMethod>
+
+  <!--**************************************************************-->
+  <!-- closed loop bode measurement - robust tuning of current and position controller  is required -->
+  <MeasurementMethod Name="Closed Loop Bode">
+    <Stimulus SupplyPoint="Current">
+      <Location Tag="AxisSignals.CurrentControllerTestSignal"/>
+      <DefaultValue Tag="AxisParameters.PositionControllerOutputLimit"/>
+    </Stimulus>
+
+    <MeasuringPoint>
+      <Location Tag="AxisSignals.CurrentControllerOutputVoltageQ"/>
+    </MeasuringPoint>
+
+    <MeasuringPoint>
+      <Location Tag="AxisSignals.CurrentControllerActualCurrentQ"/>
+    </MeasuringPoint>
+
+
+    <MeasuringPoint UseDefaultMaximumForIncrementCalculation="true">
+      <Location Uri="Signals/PositionController/Controllers[0]/PositionError"/>
+      <Condition Comparison="inequal">
+        <LeftComparand Tag="AxisParameters.EncoderType" TagIndex="0"/>
+        <RightComparand>
+          <Value>0</Value>
+        </RightComparand>
+      </Condition>
+    </MeasuringPoint>
+
+    <MeasuringPoint UseDefaultMaximumForIncrementCalculation="true">
+      <Location Uri="Signals/PositionController/Controllers[1]/PositionError"/>
+      <Condition Comparison="inequal">
+        <LeftComparand Tag="AxisParameters.EncoderType" TagIndex="1"/>
+        <RightComparand>
+          <Value>0</Value>
+        </RightComparand>
+      </Condition>
+    </MeasuringPoint>
+
+    <FrequencyResponse Name="system open G=I/U" Color="Magenta" LineWidth="1.6"
+                       NumeratorIndex="1" DenominatorIndex="0" InvertSign="false" />
+    <FrequencyResponse Name="system open G=X/U" Color="Pink" LineWidth="1"
+                       NumeratorIndex="2" DenominatorIndex="0" InvertSign="true" />
+    <FrequencyResponse Name="system open G=X/I" Color="Red" LineWidth="1"
+                       NumeratorIndex="2" DenominatorIndex="1" InvertSign="true" />
+    <FrequencyResponse Name="system open G=Y/U" Color="Pink" LineWidth="1"
+                       NumeratorIndex="3" DenominatorIndex="0" InvertSign="true" />
+    <FrequencyResponse Name="system open G=Y/I" Color="Red" LineWidth="1"
+                       NumeratorIndex="3" DenominatorIndex="1" InvertSign="true" />
+
+    <PreparationRef Id="Move in inordinate system"/>
+  </MeasurementMethod>
+
+  <!--**************************************************************-->
+  <!-- closed loop bode measurement with disabled integrator - robust tuning of current and position controller  is required -->
+  <MeasurementMethod Name="Closed Loop Bode - Integrator off">
+    <Stimulus SupplyPoint="Current">
+      <Location Tag="AxisSignals.CurrentControllerTestSignal"/>
+      <DefaultValue Tag="AxisParameters.PositionControllerOutputLimit"/>
+    </Stimulus>
+
+    <MeasuringPoint>
+      <Location Tag="AxisSignals.CurrentControllerOutputVoltageQ"/>
+    </MeasuringPoint>
+
+    <MeasuringPoint>
+      <Location Tag="AxisSignals.CurrentControllerActualCurrentQ"/>
+    </MeasuringPoint>
+
+    <MeasuringPoint UseDefaultMaximumForIncrementCalculation="true">
+      <Location Uri="Signals/PositionController/Controllers[0]/PositionError"/>
+      <Condition Comparison="inequal">
+        <LeftComparand Tag="AxisParameters.EncoderType" TagIndex="0"/>
+        <RightComparand>
+          <Value>0</Value>
+        </RightComparand>
+      </Condition>
+    </MeasuringPoint>
+
+    <MeasuringPoint UseDefaultMaximumForIncrementCalculation="true">
+      <Location Uri="Signals/PositionController/Controllers[1]/PositionError"/>
+      <Condition Comparison="inequal">
+        <LeftComparand Tag="AxisParameters.EncoderType" TagIndex="1"/>
+        <RightComparand>
+          <Value>0</Value>
+        </RightComparand>
+      </Condition>
+    </MeasuringPoint>
+
+    <FrequencyResponse Name="system open G=I/U" Color="Magenta" LineWidth="1.6"
+                       NumeratorIndex="1" DenominatorIndex="0" InvertSign="false" />
+    <FrequencyResponse Name="system open G=X/U" Color="Pink" LineWidth="1"
+                       NumeratorIndex="2" DenominatorIndex="0" InvertSign="true" />
+    <FrequencyResponse Name="system open G=X/I" Color="Red" LineWidth="1"
+                       NumeratorIndex="2" DenominatorIndex="1" InvertSign="true" />
+    <FrequencyResponse Name="system open G=Y/U" Color="Pink" LineWidth="1"
+                       NumeratorIndex="3" DenominatorIndex="0" InvertSign="true" />
+    <FrequencyResponse Name="system open G=Y/I" Color="Red" LineWidth="1"
+                       NumeratorIndex="3" DenominatorIndex="1" InvertSign="true" />
+
+    <PreparationRef Id="Move in inordinate system"/>
+
+    <!-- disable integrator -->
+    <Preparation>
+      <Source>
+        <Value>0</Value>
+      </Source>
+      <Target Tag="AxisParameters.PositionControllerKi" TagIndex="0"/>
+      <Target Tag="AxisParameters.PositionControllerKi" TagIndex="1"/>
+      <Target Tag="AxisParameters.PositionControllerTn" />
+      <Target Tag="AxisParameters.CurrentControllerTnQ" />
+    </Preparation>
+  </MeasurementMethod>
+
+  <!--**************************************************************-->
+  <!-- Gantry measurement in linear coordinate system -->
+  <MeasurementMethod Name="Gantry Axis[0]: Linear" TargetAxis="0">
+    <Stimulus SupplyPoint="Current">
+      <Location Tag="AxisSignals.CurrentControllerTestSignal"/>
+      <DefaultValue Tag="AxisParameters.PositionControllerOutputLimit"/>
+    </Stimulus>
+
+    <MeasuringPoint>
+      <Location Tag="AxisSignals.CurrentControllerOutputVoltageQ"/>
+    </MeasuringPoint>
+
+    <MeasuringPoint>
+      <Location Tag="AxisSignals.CurrentControllerActualCurrentQ"/>
+    </MeasuringPoint>
+
+    <MeasuringPoint>
+      <Location Uri="../Gantry/Signals/ActualCurrentQLin"/>
+    </MeasuringPoint>
+
+    <MeasuringPoint UseDefaultMaximumForIncrementCalculation="true">
+      <Location Uri="Signals/PositionController/Controllers[0]/PositionError"/>
+    </MeasuringPoint>
+
+    <FrequencyResponse Name="system open G=I/U" Color="Magenta" LineWidth="1.6"
+                       NumeratorIndex="1" DenominatorIndex="0" InvertSign="false" />
+    <FrequencyResponse Name="system open G=X/U" Color="Pink" LineWidth="1"
+                       NumeratorIndex="3" DenominatorIndex="0" InvertSign="true" />
+    <FrequencyResponse Name="system open G=X/I" Color="Red" LineWidth="1"
+                       NumeratorIndex="3" DenominatorIndex="2" InvertSign="true" />
+
+    <PreparationRef Id="Move in inordinate system"/>
+    <PreparationRef Id="Disable gantry position controller"/>
+    <Preparation>
+      <Source>
+        <Value>true</Value>
+      </Source>
+
+      <!-- Only needed for DSP drives. -->
+      <Target Tag="AxisCommands.CurrentControllerTestSignalAddToInput"/>
+    </Preparation>
+
+  </MeasurementMethod>
+
+  <!--**************************************************************-->
+  <!-- Gantry measurement in rotational coordinate system -->
+  <MeasurementMethod Name="Gantry Axis[1]: Rotational" TargetAxis="1">
+    <Stimulus SupplyPoint="Current">
+      <Location Tag="AxisSignals.CurrentControllerTestSignal"/>
+      <DefaultValue Tag="AxisParameters.PositionControllerOutputLimit"/>
+    </Stimulus>
+
+    <MeasuringPoint>
+      <Location Tag="AxisSignals.CurrentControllerOutputVoltageQ"/>
+    </MeasuringPoint>
+
+    <MeasuringPoint>
+      <Location Tag="AxisSignals.CurrentControllerActualCurrentQ"/>
+    </MeasuringPoint>
+
+    <MeasuringPoint>
+      <Location Uri="../Gantry/Signals/ActualCurrentQRot"/>
+    </MeasuringPoint>
+
+    <MeasuringPoint UseDefaultMaximumForIncrementCalculation="true">
+      <Location Uri="Signals/PositionController/Controllers[0]/PositionError"/>
+    </MeasuringPoint>
+
+    <FrequencyResponse Name="system open G=I/U" Color="Magenta" LineWidth="1.6"
+                       NumeratorIndex="1" DenominatorIndex="0" InvertSign="false" />
+    <FrequencyResponse Name="system open G=X/U" Color="Pink" LineWidth="1"
+                       NumeratorIndex="3" DenominatorIndex="0" InvertSign="true" />
+    <FrequencyResponse Name="system open G=X/I" Color="Red" LineWidth="1"
+                       NumeratorIndex="3" DenominatorIndex="2" InvertSign="true" />
+
+    <PreparationRef Id="Move in inordinate system"/>
+    <PreparationRef Id="Disable gantry position controller"/>
+
+  </MeasurementMethod>
+
+  <!--**************************************************************-->
+  <!-- Gantry measurement in axis0 and axis1 coordinate system -->
+  <MeasurementMethod Name="Gantry Axis[0] Axis[1]">
+    <Stimulus SupplyPoint="Voltage">
+      <Location Tag="AxisSignals.CurrentControllerTestSignal"/>
+      <DefaultValue Tag="AxisParameters.CurrentControllerOutputLimit"/>
+    </Stimulus>
+
+    <MeasuringPoint>
+      <Location Tag="AxisSignals.CurrentControllerOutputVoltageQ"/>
+    </MeasuringPoint>
+
+    <MeasuringPoint>
+      <Location Tag="AxisSignals.CurrentControllerActualCurrentQ"/>
+    </MeasuringPoint>
+
+    <MeasuringPoint UseDefaultMaximumForIncrementCalculation="true">
+      <Location Uri="../Axes[0]/Signals/PositionController/Encoders[0]/PositionCount"/>
+      <Conversion ConverterType="EncoderCounter"/>
+    </MeasuringPoint>
+
+    <MeasuringPoint UseDefaultMaximumForIncrementCalculation="true">
+      <Location Uri="../Axes[1]/Signals/PositionController/Encoders[0]/PositionCount"/>
+      <Conversion ConverterType="EncoderCounter"/>
+    </MeasuringPoint>
+
+    <FrequencyResponse Name="system open G=I/U" Color="Magenta" LineWidth="1.6"
+                       NumeratorIndex="1" DenominatorIndex="0" InvertSign="false" />
+    <FrequencyResponse Name="system open G=X/U" Color="Pink" LineWidth="1"
+                       NumeratorIndex="2" DenominatorIndex="0" InvertSign="false" />
+    <FrequencyResponse Name="system open G=X/I" Color="Red" LineWidth="1"
+                       NumeratorIndex="2" DenominatorIndex="1" InvertSign="false" />
+    <FrequencyResponse Name="system open G=Y/U" Color="Pink" LineWidth="1"
+                       NumeratorIndex="3" DenominatorIndex="0" InvertSign="false" />
+    <FrequencyResponse Name="system open G=Y/I" Color="Red" LineWidth="1"
+                       NumeratorIndex="3" DenominatorIndex="1" InvertSign="false" />
+
+    <PreparationRef Id="Move in inordinate system"/>
+    <PreparationRef Id="Disable gantry position controller"/>
+    <PreparationRef Id="Disable current controller"/>
+
+  </MeasurementMethod>
+
+  <!--**************************************************************-->
+  <!-- Bode measurement for OnePositionTwoMotors setup, weighted excitation on both channels -->
+  <MeasurementMethod Name="One Position Two Motors">
+    <Stimulus SupplyPoint="Current">
+      <Location Tag="AxisSignals.CurrentControllerTestSignal"/>
+      <DefaultValue Tag="AxisParameters.PositionControllerOutputLimit"/>
+    </Stimulus>
+    <MeasuringPoint>
+      <Location Tag="AxisSignals.CurrentControllerOutputVoltageQ"/>
+    </MeasuringPoint>
+    <MeasuringPoint>
+      <Location Tag="AxisSignals.CurrentControllerActualCurrentQ"/>
+    </MeasuringPoint>
+    <MeasuringPoint>
+      <Location Uri="../Gantry/Signals/ActualCurrentQLin"/>
+    </MeasuringPoint>
+    <MeasuringPoint UseDefaultMaximumForIncrementCalculation="true">
+      <Location Tag="AxisSignals.PositionCount" TagIndex="0"/>
+      <Conversion ConverterType="EncoderCounter"/>
+    </MeasuringPoint>
+    <FrequencyResponse Name="system open G=I/U" Color="Magenta" LineWidth="1.6" NumeratorIndex="1" DenominatorIndex="0" InvertSign="false"/>
+    <FrequencyResponse Name="system open G=X/U" Color="Pink" LineWidth="1" NumeratorIndex="3" DenominatorIndex="0" InvertSign="false"/>
+    <FrequencyResponse Name="system open G=X/I" Color="Red" LineWidth="1" NumeratorIndex="3" DenominatorIndex="2" InvertSign="false"/>
+    <PreparationRef Id="Move in inordinate system"/>
+    <PreparationRef Id="Disable position controller"/>
+  </MeasurementMethod>
+
+  <!--**************************************************************-->
+  <MeasurementMethod Name="Closed Loop Current Controller Test">
+    <FrequencyRangeDefault Min="100"/>
+    <Stimulus SupplyPoint="Voltage">
+      <Location Tag="AxisSignals.CurrentControllerTestSignal"/>
+      <DefaultValue Tag="AxisParameters.CurrentControllerOutputLimit"/>
+    </Stimulus>
+
+    <MeasuringPoint>
+      <Location Tag="AxisSignals.CurrentControllerTestSignal"/>
+    </MeasuringPoint>
+
+    <MeasuringPoint>
+      <Location Tag="AxisSignals.CurrentControllerOutputVoltageQ"/>
+    </MeasuringPoint>
+
+    <MeasuringPoint>
+      <Location Tag="CurrentControllerOutputQ"/>
+    </MeasuringPoint>
+
+
+    <FrequencyResponse Name="current supress Gs" Color="Brown" LineWidth="1"
+                       NumeratorIndex="1" DenominatorIndex="0" InvertSign="false"/>
+    <FrequencyResponse Name="current closed loop (Gcl)" Color="LimeGreen" LineWidth="1.6"
+                       NumeratorIndex="2" DenominatorIndex="0" InvertSign="false"/>
+    <FrequencyResponse Name="current open loop (Go)" Color="Red" LineWidth="1.6"
+                       NumeratorIndex="2" DenominatorIndex="1" InvertSign="false"/>
+
+    <PreparationRef Id="Move in inordinate system"/>
+    <PreparationRef Id="Disable position controller"/>
+    <Preparation>
+      <Source>
+        <Value>false</Value>
+      </Source>
+
+      <!-- Only needed for DSP drives. -->
+      <Target Tag="AxisCommands.CurrentControllerTestSignalAddToInput"/>
+    </Preparation>
+  </MeasurementMethod>
+
+  <!--**************************************************************-->
+  <MeasurementMethod Name="Closed Loop Position Controller Test">
+    <Stimulus SupplyPoint="Current">
+      <Location Tag="AxisSignals.CurrentControllerTestSignal"/>
+      <DefaultValue Tag="AxisParameters.PositionControllerOutputLimit"/>
+    </Stimulus>
+
+    <MeasuringPoint>
+      <Location Tag="AxisSignals.CurrentControllerTestSignal"/>
+    </MeasuringPoint>
+
+    <MeasuringPoint>
+      <Location Tag="PosControlOutputCurrentQAndTestSignal"/>
+    </MeasuringPoint>
+
+    <MeasuringPoint>
+      <Location Tag="AxisSignals.PositionControllerOutputCurrentQ"/>
+    </MeasuringPoint>
+
+    <FrequencyResponse Name="position supress Gs" Color="Brown" LineWidth="1"
+                       NumeratorIndex="1" DenominatorIndex="0" InvertSign="false"/>
+    <FrequencyResponse Name="position closed loop (Gcl)" Color="LimeGreen" LineWidth="1.6"
+                       NumeratorIndex="2" DenominatorIndex="0" InvertSign="false"/>
+    <FrequencyResponse Name="position open loop (Go)" Color="Red" LineWidth="1.6"
+                       NumeratorIndex="2" DenominatorIndex="1" InvertSign="false"/>
+
+    <PreparationRef Id="Move in inordinate system"/>
+    <Preparation>
+      <Source>
+        <Value>true</Value>
+      </Source>
+
+      <!-- Only needed for DSP drives. -->
+      <Target Tag="AxisCommands.CurrentControllerTestSignalAddToInput"/>
+    </Preparation>
+  </MeasurementMethod>
+
+  <!--**************************************************************-->
+  <!-- closed loop bode measurement with voltage stimulus -->
+  <!-- uncomment this section to enable closed loop bode measurement with voltage stimulus
+  <MeasurementMethod Name="Closed Loop Bode Voltage 1">
+    <Stimulus SupplyPoint="Voltage">
+      <Location Tag="AxisSignals.CurrentControllerTestSignal"/>
+      <DefaultValue Tag="AxisParameters.CurrentControllerOutputLimit"/>
+    </Stimulus>
+
+    <MeasuringPoint>
+      <Location Tag="AxisSignals.CurrentControllerOutputVoltageQ"/>
+    </MeasuringPoint>
+
+    <MeasuringPoint>
+      <Location Tag="AxisSignals.CurrentControllerActualCurrentQ"/>
+    </MeasuringPoint>
+
+   <MeasuringPoint UseDefaultMaximumForIncrementCalculation="true">
+      <Location Tag="AxisSignals.PositionCount" TagIndex="0"/>
+      <Condition Comparison="inequal">
+        <LeftComparand Tag="AxisParameters.EncoderType" TagIndex="0"/>
+        <RightComparand>
+          <Value>0</Value>
+        </RightComparand>
+      </Condition>
+      <Conversion ConverterType="EncoderCounter"/>
+    </MeasuringPoint>
+
+    <MeasuringPoint UseDefaultMaximumForIncrementCalculation="true">
+      <Location Tag="AxisSignals.PositionCount" TagIndex="1"/>
+      <Condition Comparison="inequal">
+        <LeftComparand Tag="AxisParameters.EncoderType" TagIndex="1"/>
+        <RightComparand>
+          <Value>0</Value>
+        </RightComparand>
+      </Condition>
+      <Conversion ConverterType="EncoderCounter"/>
+    </MeasuringPoint>
+
+    <FrequencyResponse Name="system open G=I/U" Color="Magenta" LineWidth="1.6"
+                       NumeratorIndex="1" DenominatorIndex="0" InvertSign="false" />
+    <FrequencyResponse Name="system open G=X/U" Color="Pink" LineWidth="1"
+                       NumeratorIndex="2" DenominatorIndex="0" InvertSign="false" />
+    <FrequencyResponse Name="system open G=X/I" Color="Red" LineWidth="1"
+                       NumeratorIndex="2" DenominatorIndex="1" InvertSign="false" />
+    <FrequencyResponse Name="system open G=Y/U" Color="Pink" LineWidth="1"
+                       NumeratorIndex="3" DenominatorIndex="0" InvertSign="false" />
+    <FrequencyResponse Name="system open G=Y/I" Color="Red" LineWidth="1"
+                       NumeratorIndex="3" DenominatorIndex="1" InvertSign="false" />
+
+    <PreparationRef Id="Move in inordinate system"/>
+    <Preparation>
+      <Source>
+        <Value>false</Value>
+      </Source>
+      <Target Tag="AxisCommands.CurrentControllerTestSignalAddToInput"/>
+    </Preparation>
+  </MeasurementMethod>
+  -->
+
+  <!--**************************************************************-->
+  <PreparationGroup Id="Move in inordinate system">
+    <Preparation>
+      <Source>
+        <Value>3.40282e+038</Value>
+      </Source>
+      <Target Tag="AxisParameters.PositionControllerErrorLimit" TagIndex="0"/>
+      <Target Tag="AxisParameters.PositionControllerErrorLimit" TagIndex="1"/>
+    </Preparation>
+    <Preparation>
+      <Source>
+        <Value>0</Value>
+      </Source>
+      <Target Tag="AxisParameters.PathPlannerModuloPositionMinimum"/>
+      <Target Tag="AxisParameters.PathPlannerModuloPositionMaximum"/>
+    </Preparation>
+  </PreparationGroup>
+
+  <PreparationGroup Id="Disable position controller">
+    <Preparation>
+      <Source>
+        <Value>0</Value>
+      </Source>
+      <Target Tag="AxisParameters.PositionControllerKr" TagIndex="0"/>
+      <Target Tag="AxisParameters.PositionControllerKr" TagIndex="1"/>
+      <Target Tag="AxisParameters.PositionControllerKi" TagIndex="0"/>
+      <Target Tag="AxisParameters.PositionControllerKi" TagIndex="1"/>
+      <Target Tag="AxisParameters.PositionControllerKd" TagIndex="0"/>
+      <Target Tag="AxisParameters.PositionControllerKd" TagIndex="1"/>
+    </Preparation>
+  </PreparationGroup>
+
+  <PreparationGroup Id="Disable gantry position controller">
+    <Preparation>
+      <Source>
+        <Value>0</Value>
+      </Source>
+      <Target Uri="../Axes[0]/Parameters/PositionController/Controllers[0]/Kp"/>
+      <Target Uri="../Axes[0]/Parameters/PositionController/Controllers[1]/Kp"/>
+      <Target Uri="../Axes[0]/Parameters/PositionController/Controllers[0]/Ki"/>
+      <Target Uri="../Axes[0]/Parameters/PositionController/Controllers[1]/Ki"/>
+      <Target Uri="../Axes[0]/Parameters/PositionController/Controllers[0]/Kd"/>
+      <Target Uri="../Axes[0]/Parameters/PositionController/Controllers[1]/Kd"/>
+      <Target Uri="../Axes[1]/Parameters/PositionController/Controllers[0]/Kp"/>
+      <Target Uri="../Axes[1]/Parameters/PositionController/Controllers[1]/Kp"/>
+      <Target Uri="../Axes[1]/Parameters/PositionController/Controllers[0]/Ki"/>
+      <Target Uri="../Axes[1]/Parameters/PositionController/Controllers[1]/Ki"/>
+      <Target Uri="../Axes[1]/Parameters/PositionController/Controllers[0]/Kd"/>
+      <Target Uri="../Axes[1]/Parameters/PositionController/Controllers[1]/Kd"/>
+    </Preparation>
+  </PreparationGroup>
+
+  <PreparationGroup Id="Disable current controller">
+    <Preparation>
+      <Source>
+        <Value>0</Value>
+      </Source>
+      <Target Tag="AxisParameters.CurrentControllerKrQ"/>
+    </Preparation>
+    <Preparation>
+      <Source>
+        <Value>0</Value>
+      </Source>
+      <Target Tag="AxisParameters.CurrentControllerKrD"/>
+    </Preparation>
+  </PreparationGroup>
+</BodeConfig>

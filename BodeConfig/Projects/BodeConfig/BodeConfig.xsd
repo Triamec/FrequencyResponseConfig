@@ -1,0 +1,357 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+    Schema for Bode configurations
+
+    Copyright © 2016 Triamec Motion AG 
+    
+    When changing types here, you must adjust the SGenSerializationTypes property in the project file accordingly.
+-->
+<xs:schema
+  attributeFormDefault="unqualified"
+  elementFormDefault="qualified"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns="http://schemas.triamec.com/Tam/BodeConfig.xsd"
+  xmlns:unique="http://schemas.triamec.com/Tam/BodeConfig.xsd"
+  targetNamespace="http://schemas.triamec.com/Tam/BodeConfig.xsd">
+
+  <xs:complexType name="Location">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Definition of a location by means of tagging or addressing.
+        If a Tag or URI is not found, or if TagIndex is not specified and a Tag represents several locations, the location is ignored.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="Uri" type="xs:string" use="optional">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Absolute or relative URI. If relative, rooted in the axis register root.
+          The URI may refer to a different axis.
+          Must not be used together with the Tag and TagIndex attributes.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="Tag" type="xs:string" use="optional">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          The tag identifying one or several locations.
+          Must not be used together with the Uri attribute.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="TagIndex" type="xs:int" use="optional">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          The zero-based index for choosing from several locations sharing the same tag.
+          Must be used together with the Tag attribute.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="Function">
+    <xs:attribute name="Func" use="required" type="xs:string"/>
+    <xs:attribute name="Type" use="required" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="FrequencyRangeDefault">
+    <xs:attribute name="Min" use="optional" type="xs:double">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">The default, in Hertz, for the minimum frequency to stimulate.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="Stimulus">
+    <xs:sequence>
+      <xs:element name="Location" type="Location" minOccurs="1" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The location where the stimulus is supplied.
+            This element is only used for informative purposes.
+          </xs:documentation>
+        </xs:annotation>
+        <xs:key name="StimulusLocationKey">
+          <xs:selector xpath="."/>
+          <xs:field xpath="@Tag|@Uri"/>
+        </xs:key>
+      </xs:element>
+      <xs:element name="DefaultValue" type="Location" minOccurs="1" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Location providing a maximum amplitude for the output where the stimulus is supplied.
+            Note that the stimulus amplitude is just ramped based on this value, but is not limited to it in case of negative feedback.
+          </xs:documentation>
+        </xs:annotation>
+        <xs:key name="DefaultValueLocationKey">
+          <xs:selector xpath="."/>
+          <xs:field xpath="@Tag|@Uri"/>
+        </xs:key>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="SupplyPoint" default="Voltage" use="optional">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">The supply point in the controller chain.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="Voltage">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">The stimulus is supplied at the voltage output.</xs:documentation>
+            </xs:annotation>
+          </xs:enumeration>
+          <xs:enumeration value="Current">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">The stimulus is supplied at the current output.</xs:documentation>
+            </xs:annotation>
+          </xs:enumeration>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:simpleType name="SourceValueType">
+    <xs:union memberTypes="xs:double xs:float xs:int xs:boolean xs:string"/>
+  </xs:simpleType>
+
+  <xs:complexType name="ValueSource">
+    <xs:choice>
+      <xs:element name="Location" type="Location">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">A location to get the value for the location to alter.</xs:documentation>
+        </xs:annotation>
+        <xs:key name="ValueSourceLocationKey">
+          <xs:selector xpath="."/>
+          <xs:field xpath="@Tag|@Uri"/>
+        </xs:key>
+      </xs:element>
+      <xs:element name="Value" type="SourceValueType">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">The value to write to the location to alter.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="Condition">
+    <xs:sequence>
+      <xs:element name="LeftComparand" type="Location" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="RightComparand" type="ValueSource" minOccurs="1" maxOccurs="1"/>
+    </xs:sequence>
+    <xs:attribute name="Comparison" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="equal"/>
+          <xs:enumeration value="inequal"/>
+          <xs:enumeration value="greater"/>
+          <xs:enumeration value="less"/>
+          <xs:enumeration value="greaterOrEqual"/>
+          <xs:enumeration value="lessOrEqual"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="ValueConversion">
+    <xs:attribute name="ConverterType" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">The type of converter to use.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="None"/>
+          <xs:enumeration value="EncoderCounter"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="MeasuringPoint">
+    <xs:sequence>
+      <xs:element name="Location" minOccurs="1" maxOccurs="unbounded" type="Location">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The location where the measurement takes place.
+            If specifying several locations, the first existing location is used. If none exist, this measuring point is ignored.
+          </xs:documentation>
+        </xs:annotation>
+        <xs:key name="MeasuringPointLocationKey">
+          <xs:selector xpath="."/>
+          <xs:field xpath="@Tag|@Uri"/>
+        </xs:key>
+      </xs:element>
+      <xs:element name="Condition" minOccurs="0" maxOccurs="unbounded" type="Condition">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Specifies under which conditions to include this measuring point in the measurement.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Conversion" minOccurs="0" maxOccurs="1" type="ValueConversion">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Provides a means for converting raw samples into calculated values ready for Bode computation.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="UseDefaultMaximumForIncrementCalculation" type="xs:boolean" use="optional" default="false">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Defines how to determine the increment and displayed number of decimal places of the permitted upper limit of the measuring point.
+          If false, use the range of the permitted upper limit. If true, use the default value of the permitted upper limit.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="FrequencyResponse">
+    <xs:attribute name="Name" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">The informative name.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="Color" type="xs:string" use="optional" default="Magenta">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">The color to use when visualizing the frequency response.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="LineWidth" type="xs:float" use="optional" default="1" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">The line-width, in pixels, to use when visualizing the frequency response.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="NumeratorIndex" type="xs:int" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">The index of the measuring point to use as numerator.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="DenominatorIndex" type="xs:int" use="optional" default="0">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">The index of the measuring point to use as denominator.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="InvertSign" type="xs:boolean" use="optional" default="false">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Whether to negate the denominator.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="Preparation">
+    <xs:sequence>
+      <xs:element name="Source" type="ValueSource">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">The source to get a value for the location to alter.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Target" type="Location" minOccurs="1" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">The location to alter.</xs:documentation>
+        </xs:annotation>
+        <xs:key name="PreparationTargetLocationKey">
+          <xs:selector xpath="."/>
+          <xs:field xpath="@Tag|@Uri"/>
+        </xs:key>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PreparationGroup">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="unbounded" name="Preparation" type="Preparation">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Defines a temporary value for a register to apply during Bode measurement.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="Id" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Unique name for referral.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="MeasurementMethod">
+    <xs:sequence>
+      <xs:element name="FrequencyRangeDefault" type="FrequencyRangeDefault" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Defines the default frequency range to stimulate.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Stimulus" type="Stimulus">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Characterizes the stimulus for the system to measure.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element maxOccurs="unbounded" name="MeasuringPoint" type="MeasuringPoint">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Specifies where to measure within the system.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element maxOccurs="unbounded" name="FrequencyResponse" type="FrequencyResponse">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Defines how to form frequency responses from the measuring points.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="PreparationRef">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Includes the preparation defined in the specified group.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:attribute name="Id" type="xs:string" use="required">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Name of the group to include.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Preparation" minOccurs="0" maxOccurs="unbounded" type="Preparation">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Defines a temporary value for a register to apply during Bode measurement.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Informative name of the Bode measurement method.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="TargetAxis" type="xs:byte" use="optional" default="-1">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          If defined, specifies the index of the axis for which this method is valid.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:element name="BodeConfig">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Definitions of how to set up a Bode measurement.</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="MeasurementMethod" minOccurs="0" maxOccurs="unbounded" type="MeasurementMethod">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">Enumeration of different methods to set up a Bode measurement.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="PreparationGroup" minOccurs="0" maxOccurs="unbounded" type="PreparationGroup">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">A referable group of items defining registers which need to be altered during Bode measurement.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+
+    <xs:unique name="MeasurementMethods">
+      <xs:selector xpath="unique:MeasurementMethod"/>
+      <xs:field xpath="@Name"/>
+    </xs:unique>
+    <xs:unique name="Preparations">
+      <xs:selector xpath="unique:PreparationGroup"/>
+      <xs:field xpath="@Id"/>
+    </xs:unique>
+  </xs:element>
+
+</xs:schema>

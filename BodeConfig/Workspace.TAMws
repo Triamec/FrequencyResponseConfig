@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!-- 
+		CAUTION! 
+		Modifying the workspace configuration can cause serious problems using the TAM Software. You should know what you're
+		doing when changing any setting.
+		
+		$Id: default.TAMws 14719 2013-03-05 09:19:12Z chm $
+-->
+
+<configuration>
+	<configSections>
+		<sectionGroup name="userSettings" type="System.Configuration.UserSettingsGroup, System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" >
+			<section name="Triamec.Tam" type="System.Configuration.ClientSettingsSection, System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" allowExeDefinition="MachineToLocalUser" requirePermission="false" />
+			<section name="Triamec.Tam.UI" type="System.Configuration.ClientSettingsSection, System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" allowExeDefinition="MachineToLocalUser" requirePermission="false" />
+			<section name="Triamec.Tam.UI.Explorer" type="System.Configuration.ClientSettingsSection, System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" allowExeDefinition="MachineToLocalUser" requirePermission="false" />
+			<section name="Triamec.Tam.Modules" type="System.Configuration.ClientSettingsSection, System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" allowExeDefinition="MachineToLocalUser" requirePermission="false" />
+			<section name="Triamec.Tam.Simulation" type="System.Configuration.ClientSettingsSection, System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" allowExeDefinition="MachineToLocalUser" requirePermission="false" />
+		</sectionGroup>
+		<sectionGroup name="applicationSettings" type="System.Configuration.ApplicationSettingsGroup, System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" >
+			<section name="Triamec.Tam" type="System.Configuration.ClientSettingsSection, System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" requirePermission="false" />
+			<section name="Triamec.Tam.UI.Explorer" type="System.Configuration.ClientSettingsSection, System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" requirePermission="false" />
+		</sectionGroup>
+	</configSections>
+
+	<userSettings>
+		<!-- For descriptions, use File|Preferences in the TAM System Explorer. -->
+
+		<Triamec.Tam.UI.Explorer>
+			<setting name="BootMode" serializeAs="String">
+				<!-- Possible values: Identify, Initialize (default) -->
+				<!-- See also TriaLinkRoleAtStartup -->
+				<value>Initialize</value>
+			</setting>
+			<setting name="IsSimulated" serializeAs="String">
+				<value>False</value>
+			</setting>
+		</Triamec.Tam.UI.Explorer>
+
+		<Triamec.Tam>
+			<setting name="TriaLinkRoleAtStartup" serializeAs="String">
+				<!-- Possible values: 
+							 Unknown:							Reset card, leave at current role.
+							 Master:							Reset card to master role.
+							 Observer:						Reset card to observer role.
+							 Untouched (default):	Don't reset card.
+				-->
+				<value>Untouched</value>
+			</setting>
+			<setting name="AcquireAdapters" serializeAs="String">
+				<!-- Possible values: All (default), TriaLink, <3d party bus name> -->
+				<value>All</value>
+			</setting>
+			<setting name="TamConfigurationPath" serializeAs="String">
+				<value></value>
+			</setting>
+			<setting name="StationBootResponseWait" serializeAs="String">
+				<value>300</value>
+			</setting>
+			<setting name="TriaLinkAsynchronousSerialPortName" serializeAs="String">
+				<!-- Possible values: COM1, COM2, ... -->
+				<value></value>
+			</setting>
+			<setting name="TriaLinkIsochronousSerialPortName" serializeAs="String">
+				<!-- Possible values: COM1, COM2, ... -->
+				<value></value>
+			</setting>
+			<setting name="ForceFirmwareDownloadWhenIdentical" serializeAs="String">
+				<value>True</value>
+			</setting>
+		</Triamec.Tam>
+
+		<Triamec.Tam.UI>
+			<setting name="ScopeConfigurationPath" serializeAs="String">
+				<value></value>
+			</setting>
+		</Triamec.Tam.UI>
+
+		<Triamec.Tam.Modules>
+			<setting name="HighspeedBode" serializeAs="String">
+				<value>True</value>
+			</setting>
+			<setting name="BodeSecondMeasuringPointUsed" serializeAs="String">
+				<value>True</value>
+			</setting>
+			<setting name="BodeInputSignalPeriods" serializeAs="String">
+				<value>10</value>
+			</setting>
+			<setting name="BodeSignalViewPeriods" serializeAs="String">
+				<value>5</value>
+			</setting>
+		</Triamec.Tam.Modules>
+	</userSettings>
+
+	<applicationSettings>
+		<Triamec.Tam.UI.Explorer>
+			<setting name="ResetFaultsOnBoot" serializeAs="String">
+				<!-- Whether to attempt to acknowledge device faults after start up.
+						 This setting is ignored when boot mode is Identify. -->
+				<value>False</value>
+			</setting>
+		</Triamec.Tam.UI.Explorer>
+
+		<Triamec.Tam>
+			<setting name="PciIrqEnabled" serializeAs="String">
+				<!-- Whether the interrupt of the Tria-Link PCI card is utilized. -->
+				<value>True</value>
+			</setting>
+			<setting name="RestartPalSlavesOnBoot" serializeAs="String">
+				<!-- Whether to request all slave devices of a PALbus system to restart. -->
+				<value>True</value>
+			</setting>
+			<setting name="UserProductTypes" serializeAs="Xml">
+				<!-- A list of user defined product types. 
+					The name uniquely defines this product type and represents products of this type.
+					The value uniquely defines this product type and is reported by the hardware. It is assigned by Triamec Motion.
+					The type is any of the fundamental types defined in the StationType enum: Station, Device, Drive, Scheduler.
+					Axis count defines the maximal number of axes a device supports. Supported values include 0, 1, and 2.
+					MBCs is the list of values from the MotorBaseConfiguration enum the device supports.
+				-->
+				<value>
+					<ArrayOfProductType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+							xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+						<!--<ProductType name="FooDrive01" 
+							value="0x0132" type="Drive" description="Foo's first drive." manufacturer="Foo AG">							
+							<MBCs>
+								<MBC>NoMotorOneAxis</MBC>
+								<MBC>OneBrushDCMotor</MBC>
+								<MBC>OneSynchronousACMotor</MBC>
+								<MBC>OneTwoPhaseACMotor</MBC>
+							</MBCs>
+						</ProductType>-->
+					</ArrayOfProductType>
+				</value>
+			</setting>
+			<setting name="AllowPartialFirmwareDownload" serializeAs="String">
+				<!-- Whether to allow partial download of firmware files containing firmware for different updatable nodes. -->
+				<value>True</value>
+			</setting>
+		</Triamec.Tam>
+
+	</applicationSettings>
+</configuration>
