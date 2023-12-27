@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- 
-    Schema for Bode configurations
+    Schema for Frequency Response configurations
 
     Copyright © 2016 Triamec Motion AG 
     
@@ -10,9 +10,9 @@
   attributeFormDefault="unqualified"
   elementFormDefault="qualified"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns="http://schemas.triamec.com/Tam/BodeConfig.xsd"
-  xmlns:unique="http://schemas.triamec.com/Tam/BodeConfig.xsd"
-  targetNamespace="http://schemas.triamec.com/Tam/BodeConfig.xsd">
+  xmlns="http://schemas.triamec.com/Tam/FrequencyResponseConfig.xsd"
+  xmlns:unique="http://schemas.triamec.com/Tam/FrequencyResponseConfig.xsd"
+  targetNamespace="http://schemas.triamec.com/Tam/FrequencyResponseConfig.xsd">
 
   <xs:complexType name="Location">
     <xs:annotation>
@@ -189,7 +189,7 @@
       <xs:element name="Conversion" minOccurs="0" maxOccurs="1" type="ValueConversion">
         <xs:annotation>
           <xs:documentation xml:lang="en">
-            Provides a means for converting raw samples into calculated values ready for Bode computation.
+            Provides a means for converting raw samples into calculated values ready for Frequency Response computation.
           </xs:documentation>
         </xs:annotation>
       </xs:element>
@@ -260,7 +260,7 @@
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="unbounded" name="Preparation" type="Preparation">
         <xs:annotation>
-          <xs:documentation xml:lang="en">Defines a temporary value for a register to apply during Bode measurement.</xs:documentation>
+          <xs:documentation xml:lang="en">Defines a temporary value for a register to apply during Frequency Response measurement.</xs:documentation>
         </xs:annotation>
       </xs:element>
     </xs:sequence>
@@ -307,13 +307,13 @@
       </xs:element>
       <xs:element name="Preparation" minOccurs="0" maxOccurs="unbounded" type="Preparation">
         <xs:annotation>
-          <xs:documentation xml:lang="en">Defines a temporary value for a register to apply during Bode measurement.</xs:documentation>
+          <xs:documentation xml:lang="en">Defines a temporary value for a register to apply during Frequency Response measurement.</xs:documentation>
         </xs:annotation>
       </xs:element>
     </xs:sequence>
     <xs:attribute name="Name" type="xs:string" use="required">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Informative name of the Bode measurement method.</xs:documentation>
+        <xs:documentation xml:lang="en">Informative name of the Frequency Response measurement method.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="TargetAxis" type="xs:byte" use="optional" default="-1">
@@ -325,20 +325,20 @@
     </xs:attribute>
   </xs:complexType>
 
-  <xs:element name="BodeConfig">
+  <xs:element name="FrequencyResponseConfig">
     <xs:annotation>
-      <xs:documentation xml:lang="en">Definitions of how to set up a Bode measurement.</xs:documentation>
+      <xs:documentation xml:lang="en">Definitions of how to set up a Frequency Response measurement.</xs:documentation>
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
         <xs:element name="MeasurementMethod" minOccurs="0" maxOccurs="unbounded" type="MeasurementMethod">
           <xs:annotation>
-            <xs:documentation xml:lang="en">Enumeration of different methods to set up a Bode measurement.</xs:documentation>
+            <xs:documentation xml:lang="en">Enumeration of different methods to set up a Frequency Response measurement.</xs:documentation>
           </xs:annotation>
         </xs:element>
         <xs:element name="PreparationGroup" minOccurs="0" maxOccurs="unbounded" type="PreparationGroup">
           <xs:annotation>
-            <xs:documentation xml:lang="en">A referable group of items defining registers which need to be altered during Bode measurement.</xs:documentation>
+            <xs:documentation xml:lang="en">A referable group of items defining registers which need to be altered during Frequency Response measurement.</xs:documentation>
           </xs:annotation>
         </xs:element>
       </xs:sequence>

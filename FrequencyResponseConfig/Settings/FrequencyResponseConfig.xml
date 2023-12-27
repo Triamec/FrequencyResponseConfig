@@ -1,19 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <!-- 
-    Bode configuration
+    Frequency response measurement configuration
 
     Copyright © 2016 Triamec Motion AG 
 -->
-<BodeConfig xmlns="http://schemas.triamec.com/Tam/BodeConfig.xsd">
+<FrequencyResponseConfig xmlns="http://schemas.triamec.com/Tam/FrequencyResponseConfig.xsd">
 
   <!--**************************************************************-->
-  <!-- open loop bode measurement -->
-  <MeasurementMethod Name="Open Loop Bode">
+  <!-- open loop measurement -->
+  <MeasurementMethod Name="Open Loop">
     <Stimulus SupplyPoint="Voltage">
-      
+
       <!-- Current way to specify a location. Note, however, that tags will be deprecated some day. -->
       <Location Tag="AxisSignals.CurrentControllerTestSignal"/>
-      
+
       <!--
         Future primary method to specify a location: address relative to the axis register.
         <Location Uri="Signals/CurrentController/TestSignal"/>
@@ -91,8 +91,8 @@
   </MeasurementMethod>
 
   <!--**************************************************************-->
-  <!-- closed loop bode measurement - robust tuning of current and position controller  is required -->
-  <MeasurementMethod Name="Closed Loop Bode">
+  <!-- closed loop measurement - robust tuning of current and position controller  is required -->
+  <MeasurementMethod Name="Closed Loop">
     <Stimulus SupplyPoint="Current">
       <Location Tag="AxisSignals.CurrentControllerTestSignal"/>
       <DefaultValue Tag="AxisParameters.PositionControllerOutputLimit"/>
@@ -142,8 +142,8 @@
   </MeasurementMethod>
 
   <!--**************************************************************-->
-  <!-- closed loop bode measurement with disabled integrator - robust tuning of current and position controller  is required -->
-  <MeasurementMethod Name="Closed Loop Bode - Integrator off">
+  <!-- closed loop measurement with disabled integrator - robust tuning of current and position controller  is required -->
+  <MeasurementMethod Name="Closed Loop - Integrator off">
     <Stimulus SupplyPoint="Current">
       <Location Tag="AxisSignals.CurrentControllerTestSignal"/>
       <DefaultValue Tag="AxisParameters.PositionControllerOutputLimit"/>
@@ -326,7 +326,7 @@
   </MeasurementMethod>
 
   <!--**************************************************************-->
-  <!-- Bode measurement for OnePositionTwoMotors setup, weighted excitation on both channels -->
+  <!-- Frequency response measurement for OnePositionTwoMotors setup, weighted excitation on both channels -->
   <MeasurementMethod Name="One Position Two Motors">
     <Stimulus SupplyPoint="Current">
       <Location Tag="AxisSignals.CurrentControllerTestSignal"/>
@@ -555,4 +555,4 @@
       <Target Tag="AxisParameters.CurrentControllerKrD"/>
     </Preparation>
   </PreparationGroup>
-</BodeConfig>
+</FrequencyResponseConfig>
