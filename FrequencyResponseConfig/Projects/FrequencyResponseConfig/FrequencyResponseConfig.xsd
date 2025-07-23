@@ -1,10 +1,12 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- 
     Schema for Frequency Response configurations
 
     Copyright © 2016 Triamec Motion AG 
     
     When changing types here, you must adjust the SGenSerializationTypes property in the project file accordingly.
+    This file is to be mirrored at
+    https://github.com/Triamec/FrequencyResponseConfig/blob/main/FrequencyResponseConfig/Projects/FrequencyResponseConfig/FrequencyResponseConfig.xsd
 -->
 <xs:schema
   attributeFormDefault="unqualified"
@@ -102,6 +104,11 @@
           <xs:enumeration value="Current">
             <xs:annotation>
               <xs:documentation xml:lang="en">The stimulus is supplied at the current output.</xs:documentation>
+            </xs:annotation>
+          </xs:enumeration>
+          <xs:enumeration value="Position">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">The stimulus is supplied at the position output.</xs:documentation>
             </xs:annotation>
           </xs:enumeration>
         </xs:restriction>
